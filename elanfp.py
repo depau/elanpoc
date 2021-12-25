@@ -18,6 +18,7 @@ Usage:
     ARGV0 delete_all
     ARGV0 wipe_all
     ARGV0 fw_ver
+    ARGV0 capture <png>
     ARGV0 read_reg <reg>
     ARGV0 dump_regs
     ARGV0 raw (-e EP) <hex>...
@@ -39,6 +40,7 @@ delete <id>        Delete finger
 delete_all         Delete all enrolled fingers (one by one)
 wipe_all           Wipe all enrolled fingers (using special command)
 fw_ver             Get firmware version
+capture            Capture image into a PNG file
 read_reg <reg>     Read register
 dump_regs          Read all registers
 raw                Send raw command
@@ -52,6 +54,7 @@ from typing import Optional
 import hexdump
 import usb1
 from docopt import docopt
+from PIL import Image
 
 Command = namedtuple("Command", ("command", "out_len", "in_len", "ep_out", "ep_in"))
 
@@ -61,6 +64,7 @@ COMMANDS = {
     "verify": Command(b"\x40\xff\x03", 3, 2, 1, 4),
     "finger_info": Command(b"\x40\xff\x12", 4, 70, 1, 3),
     "enrolled_num": Command(b"\x40\xff\x04", 3, 2, 1, 3),
+    "sensor_size":   Command(b"\x00\x0c", 2, 4, 1, 3),
     "enrolled_num1": Command(b"\x40\xff\x00", 3, 2, 1, 3),
     "abort": Command(b"\x40\xff\x02", 3, 2, 1, 3),
     "commit": Command(b"\x40\xff\x11", 72, 2, 1, 3),
@@ -336,6 +340,34 @@ def main(args):
                             continue
                         payload = (struct.pack("B", 0xf0 | (finger_id + 5)) + resp[2:]).ljust(69, b"\x00")
                         delete(handle, finger_id, payload)
+
+                elif args["capture"]:
+                    resp = command(handle, "sensor_size")
+                    width = resp[0] + 1
+                    height = resp[2] + 1
+                    # Capture an image
+                    handle.bulkWrite(1, bytes([0x00, 0x09]), timeout=5000)
+                    resp = handle.bulkRead(2, 2 * width * height, timeout=5000)
+                    img = Image.frombuffer("I;16L", (width, height), resp)
+
+                    # Get minimum and maximum pixel values
+                    minv = 2<<16-1
+                    maxv = 0
+                    for y in range(0, height):
+                        for x in range(0, width):
+                            v = img.getpixel((x, y))
+                            minv = min(minv, v)
+                            maxv = max(v, maxv)
+
+                    # Convert to 8bit greyscale
+                    img_8b = Image.new("L", (width, height))
+                    diff = maxv - minv
+                    for y in range(0, height):
+                        for x in range(0, width):
+                            v = img.getpixel((x, y))
+                            img_8b.putpixel((x, y), int((v - minv) * 256 / diff))
+
+                    img_8b.save(args["<png>"], "PNG")
 
                 elif args["wipe_all"]:
                     print("Wiping all fingers")
