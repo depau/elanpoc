@@ -56,19 +56,19 @@ from docopt import docopt
 Command = namedtuple("Command", ("command", "out_len", "in_len", "ep_out", "ep_in"))
 
 COMMANDS = {
-    "reset_device": Command(b"'WDTRST", 8, 0, 1, None),
-    "fw_ver": Command(b"\x19", 2, 2, 1, 3),
-    "verify": Command(b"\xff\x03", 3, 2, 1, 4),
-    "finger_info": Command(b"\xff\x12", 4, 70, 1, 3),
-    "enrolled_num": Command(b"\xff\x04", 3, 2, 1, 3),
-    "enrolled_num1": Command(b"\xff\x00", 3, 2, 1, 3),
-    "abort": Command(b"\xff\x02", 3, 2, 1, 3),
-    "commit": Command(b"\xff\x11", 72, 2, 1, 3),
-    "enroll": Command(b"\xff\x01", 7, 2, 1, 4),
-    "check_enrolled_collision": Command(b"\xff\x10", 3, 3, 1, 3),
-    "delete_subsid": Command(b"\xff\x13", 72, 2, 1, 3),
-    "delete": Command(b"\xff\x05", 5, 2, 1, 3),
-    "wipe_all": Command(b"\xff\x99", 3, 0, 1, None),
+    "reset_device": Command(b"\x40'WDTRST", 8, 0, 1, None),
+    "fw_ver": Command(b"\x40\x19", 2, 2, 1, 3),
+    "verify": Command(b"\x40\xff\x03", 3, 2, 1, 4),
+    "finger_info": Command(b"\x40\xff\x12", 4, 70, 1, 3),
+    "enrolled_num": Command(b"\x40\xff\x04", 3, 2, 1, 3),
+    "enrolled_num1": Command(b"\x40\xff\x00", 3, 2, 1, 3),
+    "abort": Command(b"\x40\xff\x02", 3, 2, 1, 3),
+    "commit": Command(b"\x40\xff\x11", 72, 2, 1, 3),
+    "enroll": Command(b"\x40\xff\x01", 7, 2, 1, 4),
+    "check_enrolled_collision": Command(b"\x40\xff\x10", 3, 3, 1, 3),
+    "delete_subsid": Command(b"\x40\xff\x13", 72, 2, 1, 3),
+    "delete": Command(b"\x40\xff\x05", 5, 2, 1, 3),
+    "wipe_all": Command(b"\x40\xff\x99", 3, 0, 1, None),
 }
 
 # --- @'WDTRST
@@ -114,7 +114,7 @@ IFACE = 0
 
 def command(usb: usb1.USBDeviceHandle, cmdname: str, payload: bytes = b"", timeout=5000) -> bytes:
     outpayload, outlen, inlen, ep_out, ep_in = COMMANDS[cmdname]
-    cmd = b"\x40" + outpayload + payload
+    cmd = outpayload + payload
     if len(cmd) != outlen:
         warnings.warn(f"Wrong command size: {len(cmd)} vs {outlen}")
 
@@ -359,7 +359,7 @@ def main(args):
 
             except (Exception, KeyboardInterrupt) as e:
                 print("Aborting")
-                handle.bulkWrite(1, b"\40" + COMMANDS["abort"].command)
+                handle.bulkWrite(1, COMMANDS["abort"].command)
                 raise
 
 
