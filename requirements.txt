@@ -1,5 +1,0 @@
-docopt
-hexdump
-libusb1
-pillow
-pyjq

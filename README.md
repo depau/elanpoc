@@ -32,24 +32,35 @@ It can be dropped into the Lua plugins directory, then you can right-click a pac
 
 ## PoC
 
-RE still ongoing, an initial PoC is available:
+You can use [`uv`](https://docs.astral.sh/uv/) to run the PoC:
+
+```bash
+git clone https://github.com/depau/elanpoc.git
+cd elanpoc
+uv run elanfp --help
+```
 
 ```
 ELAN 04F3:0C4C Match-on-Chip fingerprint reader driver PoC.
 
 Usage:
-    ./elanfp.py -h | --help
-    ./elanfp.py reset
-    ./elanfp.py finger_info <id>
-    ./elanfp.py verify
-    ./elanfp.py enrolled_count
-    ./elanfp.py enroll (-u UD)
-    ./elanfp.py delete <id>
-    ./elanfp.py finger_info_all
-    ./elanfp.py delete_all
-    ./elanfp.py fw_ver
-    ./elanfp.py capture <png>
-    ./elanfp.py raw (-e EP) <hex>...
+    elanfp -h | --help
+    elanfp info
+    elanfp soft_reset
+    elanfp hard_reset
+    elanfp finger_info <id>
+    elanfp verify
+    elanfp enrolled_count
+    elanfp enroll (-u UD)
+    elanfp delete <id>
+    elanfp finger_info_all
+    elanfp delete_all
+    elanfp wipe_all
+    elanfp fw_ver
+    elanfp capture <png>
+    elanfp read_reg <reg>
+    elanfp dump_regs
+    elanfp raw (-e EP) <hex>...
 
 Options:
 -h, --help         Show help
@@ -57,15 +68,20 @@ Options:
 -u UD. --user UD   User data for enroll command
 
 Commands:
-reset              Reset sensor
+info               Get device info
+soft_reset         Reset sensor (via libusb)
+hard_reset         Reset sensor (via hardware - disconnect and reconnect)
 finger_info <id>   Get finger info
 verify             Verify finger
 enrolled_count     Get number of fingers currently enrolled
 enroll             Enroll a new finger
 delete <id>        Delete finger
-delete_all         Delete all enrolled fingers
+delete_all         Delete all enrolled fingers (one by one)
+wipe_all           Wipe all enrolled fingers (using special command)
 fw_ver             Get firmware version
 capture            Capture image into a PNG file
+read_reg <reg>     Read register
+dump_regs          Read all registers
 raw                Send raw command
 ```
 

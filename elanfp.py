@@ -260,7 +260,9 @@ def delete(handle: usb1.USBDeviceHandle, fpid: int, finger_sid: bytes):
         hexdump.hexdump(resp)
 
 
-def main(args):
+def main():
+    args = docopt(__doc__.replace("ARGV0", sys.argv[0]))
+
     with usb1.USBContext() as context:
         for vid, pid in DEVICES:
             handle = context.openByVendorIDAndProductID(vid, pid)
@@ -396,5 +398,4 @@ def main(args):
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__.replace("ARGV0", sys.argv[0]))
-    main(args)
+    main()

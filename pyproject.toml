@@ -1,0 +1,30 @@
+[project]
+name = "elanpoc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "docopt>=0.6.2",
+    "hexdump>=3.3",
+    "jq>=1.10.0",
+    "libusb1>=3.3.1",
+    "pillow>=11.3.0"
+]
+
+[project.scripts]
+elanfp = "elanfp:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "**/*.py",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "**/*.py",
+]
