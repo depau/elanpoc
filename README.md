@@ -8,6 +8,9 @@ libfprint: [`elanmoc.c`](https://gitlab.freedesktop.org/libfprint/libfprint/-/bl
 
 However there seem to be some differences.
 
+A merge request has been opened to add support for this sensor to libfprint:
+https://gitlab.freedesktop.org/libfprint/libfprint/-/merge_requests/330
+
 ## Dissection parser
 
 `wireshark_parser.py` parses a WireShark dissection of the communication with the sensor,
